@@ -206,6 +206,22 @@ contract is `.azure/deployment-plan.md`; user guidance starts in `README.md` and
 the implementation, the documentation and the plan in sync. The Azure, Bicep, naming,
 workflow, .NET and Python rules are in `.github/instructions/`.
 
+The local Python handwriting PoC is under `src/handwritten_docs/`, documented in
+`docs/handwriting-poc.md`. Its CLI is intentionally offline-only: `analyze` consumes
+source-hash-bound local DI/vision evidence; it never creates network clients.
+Keep real PDFs, crops, review JSON and outputs in ignored `local-data/` or `artifacts/`.
+Only synthetic fixtures may enter git or public CI artifacts. Automatic eligibility is
+disabled until a locally supplied calibration reference exists, and still requires local
+protection/cleanup inspection. Text approval never overrides a failed cleanup gate.
+Formula layouts remain unchanged in this version. Changed pages must be reconstructed
+without original content streams, with retained OCR rebuilt once and replaced spans omitted.
+
+Use the project `.venv`: `.venv\Scripts\python -m pytest -q`,
+`.venv\Scripts\python -m ruff check .` and
+`.venv\Scripts\python -m ruff format --check .`. Resolve Python locks with
+`.venv\Scripts\python scripts\lock_requirements.py --min-age-days 8`, through
+`https://packagefeedproxy.microsoft.io/pypi/simple/` only, with no age/feed bypass.
+
 ### Validation commands
 
 ```powershell

@@ -7,7 +7,10 @@ Two rules, from the repository rules:
    feed can't be reached, switch the source instead (see
    [Turn the approved feed off](#turn-the-approved-feed-off)).
 2. **7-day age gate.** A package version, GitHub Action release or base image is used only
-   once it has been public for at least 7 days.
+   once it has been public for at least 7 days. This project's Python PoC applies the
+   stricter **8-day** package policy: resolve Python locks with `--min-age-days 8`;
+   locked-package CI now checks eight days too. No age/feed bypass is permitted for
+   the managed-machine PoC workflow.
 
 ## How each ecosystem follows them
 
@@ -27,17 +30,20 @@ dotnet restore --force-evaluate     # rewrites the packages.lock.json files
 python scripts/check_package_age.py # same check as CI
 ```
 
-**Python** (PowerShell, project `.venv`):
+**Python** (PowerShell workstation, project `.venv`):
 ```powershell
+Set-Location <repository-root>
 # 1. Change requirements.in / requirements-dev.in (names and ranges, not exact pins)
-.venv\Scripts\python scripts/lock_requirements.py   # resolves, excludes too-new releases, hashes
+$env:PIP_INDEX_URL = 'https://packagefeedproxy.microsoft.io/pypi/simple/'
+.venv\Scripts\python scripts/lock_requirements.py --min-age-days 8
 .venv\Scripts\python -m pip install --require-hashes -r requirements-dev.lock
 ```
 
 ## When CI's age gate fails
 
 The job lists each version and its publish date. Pick the previous release (or wait until it
-is 7 days old). For an urgent fix that can't wait (a security patch), add one line to
+is 8 days old). The PoC does not permit an age exception. For other workflows that
+explicitly authorize an urgent fix (a security patch), add one line to
 `scripts/package-age-allow.txt` with the reason, in the same PR:
 ```
 nuget:Some.Package==1.2.3  # CVE-2026-1234: fix needed now; remove after 2026-11-02

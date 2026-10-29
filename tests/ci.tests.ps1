@@ -548,8 +548,9 @@ Test-Case 'the code scaffolding restores from the approved feed only, locked, an
     }
 
     $ci = Get-Content -LiteralPath (Join-Path $workflowRoot 'ci.yml') -Raw
-    Assert-Match -Actual $ci -Pattern 'python scripts/check_package_age\.py --min-age-days 7' -Message 'CI must run the 7-day age gate.'
+    Assert-Match -Actual $ci -Pattern 'python scripts/check_package_age\.py --min-age-days 8' -Message 'CI must run the stricter 8-day package age gate.'
     Assert-Match -Actual $ci -Pattern 'pip install --require-hashes' -Message 'CI must install Python packages by hash only.'
+    Assert-Match -Actual $ci -Pattern 'PIP_INDEX_URL: https://packagefeedproxy\.microsoft\.io/pypi/simple/' -Message 'Python CI must use only the approved feed.'
     foreach ($script in 'scripts/check_package_age.py', 'scripts/db/sqlite_backup.py') {
         Assert-True -Condition (Test-Path -LiteralPath (Get-RepoPath $script)) -Message "'$script' must be in the repository."
     }
