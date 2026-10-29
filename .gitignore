@@ -36,6 +36,11 @@ docs/targets.md
 backups/
 artifacts/
 
+# ---- Documents: real samples and everything derived from them stay local ----
+# The tests generate their own synthetic PDFs (tests/python/synthetic_pdfs.py).
+samples/
+out/
+
 # ---- .NET ----
 bin/
 obj/

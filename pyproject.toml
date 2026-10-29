@@ -1,0 +1,7 @@
+# Tool settings only: dependencies are in requirements*.in / *.lock, ruff settings in ruff.toml.
+
+[tool.pytest.ini_options]
+# The package lives in src/; the PowerShell suite in tests/ is run by tests/run-tests.ps1.
+pythonpath = ["src"]
+testpaths = ["tests/python"]
+addopts = "--strict-markers"

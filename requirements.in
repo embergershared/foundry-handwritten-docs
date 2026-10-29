@@ -1,0 +1,2 @@
+# Runtime dependencies of src/handwritten_docs (names and ranges; scripts/lock_requirements.py pins them).
+pypdf>=5

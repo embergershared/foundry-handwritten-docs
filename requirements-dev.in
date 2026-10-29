@@ -1,0 +1,7 @@
+# Development and test dependencies: the runtime ones, then the tools CI runs.
+-r requirements.in
+pytest
+ruff
+# Synthetic PDFs for the tests: drawn with reportlab, scanned-style pages from Pillow images.
+reportlab
+pillow
