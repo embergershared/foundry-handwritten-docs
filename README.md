@@ -7,10 +7,21 @@ Project to assess capability of Foundry to ingest mixed documents with printed a
 > product and is not supported by Microsoft. Review and test it before using any part of it
 > in your environment. See [docs/SUPPORT.md](docs/SUPPORT.md).
 
+## Overview
+
+<!-- Keep this section: a few lines on what the project does and for whom. The details go in
+     docs/architecture.md. -->
+
+## Quick start
+
+<!-- Keep this section: the few commands that take a new user from a clone to a first
+     preview or deployment, each with where it runs. The full walkthrough stays in
+     docs/getting-started.md. -->
+
 ## Contents
 
-<!-- Keep this README a table of contents: one line on the project above, then the pages.
-     Background, how-tos and long explanations go in docs/, one page per topic. -->
+<!-- Keep this README short: the Overview and Quick start above, then this table of contents of
+     the pages. Background, how-tos and long explanations go in docs/, one page per topic. -->
 
 **Use it**
 
