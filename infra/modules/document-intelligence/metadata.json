@@ -1,0 +1,22 @@
+{
+  "name": "document-intelligence",
+  "displayName": "Document Intelligence",
+  "description": "Single-service S0 FormRecognizer account with Entra authentication, default-deny workstation IP access, scoped users and metrics-only diagnostics.",
+  "kind": "resource",
+  "abbreviation": "di",
+  "featureFlag": "documentIntelligence",
+  "profiles": ["core", "private", "full"],
+  "providers": ["Microsoft.CognitiveServices", "Microsoft.Insights", "Microsoft.Authorization"],
+  "privateEndpoints": [],
+  "roles": [
+    {
+      "name": "Cognitive Services User",
+      "id": "a97b65f3-24c7-4388-baec-2e87135dc908"
+    }
+  ],
+  "nameRule": "global",
+  "preflight": {
+    "checks": [],
+    "requiresOperatorPrincipals": true
+  }
+}

@@ -206,6 +206,14 @@ contract is `.azure/deployment-plan.md`; user guidance starts in `README.md` and
 the implementation, the documentation and the plan in sync. The Azure, Bicep, naming,
 workflow, .NET and Python rules are in `.github/instructions/`.
 
+Handwriting recognition infrastructure is explicitly opt-in through `aiFoundry` and
+`documentIntelligence` feature overrides; all profile defaults stay unchanged.
+See `docs/handwriting-azure.md`. The current public exception requires one approved
+workstation IPv4, ACL default Deny/bypass None and Entra-only access. AI private
+endpoints are not composed. Grant OpenAI User at account scope, Azure AI User at
+project scope and Cognitive Services User at DI scope. Enable only `AllMetrics`,
+never document/prompt/response logs. Provisioning does not authorize document upload.
+
 ### Validation commands
 
 ```powershell

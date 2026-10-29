@@ -41,6 +41,14 @@ param deployments array = []
 ])
 param publicNetworkAccess string = 'Enabled'
 
+@description('Single explicitly approved workstation IPv4. Empty means deny all clients.')
+@maxLength(15)
+param allowedClientIpv4 string = ''
+
+param operatorPrincipalIds array = []
+param enableRoleAssignments bool = true
+param logAnalyticsWorkspaceId string = ''
+
 resource account 'Microsoft.CognitiveServices/accounts@2025-06-01' = {
   name: name
   location: location
@@ -57,6 +65,18 @@ resource account 'Microsoft.CognitiveServices/accounts@2025-06-01' = {
     allowProjectManagement: true
     publicNetworkAccess: publicNetworkAccess
     disableLocalAuth: true
+    networkAcls: {
+      defaultAction: 'Deny'
+      bypass: 'None'
+      ipRules: empty(allowedClientIpv4)
+        ? []
+        : [
+            {
+              value: allowedClientIpv4
+            }
+          ]
+      virtualNetworkRules: []
+    }
   }
 }
 
@@ -95,6 +115,49 @@ resource modelDeployments 'Microsoft.CognitiveServices/accounts/deployments@2025
     ]
   }
 ]
+
+resource inferenceUsers 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
+  for principalId in (enableRoleAssignments ? operatorPrincipalIds : []): {
+    name: guid(account.id, principalId, '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
+    scope: account
+    properties: {
+      principalId: principalId
+      roleDefinitionId: subscriptionResourceId(
+        'Microsoft.Authorization/roleDefinitions',
+        '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd'
+      )
+    }
+  }
+]
+
+resource projectUsers 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
+  for principalId in (enableRoleAssignments ? operatorPrincipalIds : []): {
+    name: guid(project.id, principalId, '53ca6127-db72-4b80-b1b0-d745d6d5456d')
+    scope: project
+    properties: {
+      principalId: principalId
+      roleDefinitionId: subscriptionResourceId(
+        'Microsoft.Authorization/roleDefinitions',
+        '53ca6127-db72-4b80-b1b0-d745d6d5456d'
+      )
+    }
+  }
+]
+
+resource diagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logAnalyticsWorkspaceId)) {
+  name: 'metrics'
+  scope: account
+  properties: {
+    workspaceId: logAnalyticsWorkspaceId
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+    logs: []
+  }
+}
 
 @description('Resource ID.')
 output id string = account.id

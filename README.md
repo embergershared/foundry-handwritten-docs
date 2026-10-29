@@ -27,6 +27,7 @@ Project to assess capability of Foundry to ingest mixed documents with printed a
 
 | Page | What it covers |
 |---|---|
+| [docs/handwriting-azure.md](docs/handwriting-azure.md) | Minimal opt-in azd/Bicep recognition resources, one environment RG, Entra roles and workstation-only public access |
 | [docs/getting-started.md](docs/getting-started.md) | **Start here:** local tenant files, a first environment and preview, profiles, adding resources, tests |
 | [docs/architecture.md](docs/architecture.md) | The conventions layer, profiles, network, naming contract, extension points |
 | [docs/configuration.md](docs/configuration.md) | Profiles, environment values, preflight, expert overrides, resource naming |
