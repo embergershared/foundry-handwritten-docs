@@ -200,6 +200,27 @@ Project to assess capability of Foundry to ingest mixed documents with printed a
 <!-- Add what an agent can't learn quickly from the code: build and run commands, the
      architecture in a few lines, domain terms, where logs go, and known gotchas. -->
 
+### Handwriting CLI
+
+`src/handwritten_docs/` is an offline Python 3.13 CLI (`docs/handwriting-cli.md`), built in the
+phases of issue #4: `inspect`, then `extract`, `review`/`approve` and `export`. It makes no cloud
+call; recognition results are read from files. Settings come from environment variables read in
+`config.py` only; results go to standard output, logs to standard error.
+
+```powershell
+.venv\Scripts\python -m pip install --require-hashes -r requirements-dev.lock
+$env:PYTHONPATH = 'src'; .venv\Scripts\python -m handwritten_docs inspect <pdf>
+.venv\Scripts\python -m pytest -q          # tests/python, offline, synthetic PDFs
+.venv\Scripts\python -m ruff check .; .venv\Scripts\python -m ruff format --check .
+```
+
+- **No real documents in the repository (always).** Real PDFs go in `samples/`, outputs in
+  `out/` (both gitignored). Tests generate synthetic PDFs (`tests/python/synthetic_pdfs.py`);
+  reports and logs never include a document's text.
+- PDF libraries: `pypdf`, and later `pypdfium2`, `reportlab`, `Pillow`. Not PyMuPDF (AGPL).
+
+### Infrastructure
+
 The project starts from an infrastructure-only Azure starter: the Azure Developer CLI (`azd`)
 orchestrates subscription-scope modular Bicep from `azure.yaml`. The approved deployment
 contract is `.azure/deployment-plan.md`; user guidance starts in `README.md` and `docs/`. Keep
