@@ -203,7 +203,8 @@ function Get-ProfileFeatureFlags {
     foreach ($name in @(
             'deployNetwork', 'deployKeyVault', 'deployStorage', 'deployBastion',
             'deployWindowsVm', 'deployLinuxVm', 'deployNatGateway', 'deployEntraLogin',
-            'deployShutdownSchedules', 'deployAnyVm', 'assignRoles')) {
+            'deployShutdownSchedules', 'deployAnyVm', 'assignRoles',
+            'deployAiFoundry', 'deployDocumentIntelligence')) {
         $expression = $Template.variables.$name
         if ($null -eq $expression) {
             throw "infra/main.bicep no longer defines the variable '$name'."

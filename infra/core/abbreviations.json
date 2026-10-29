@@ -6,6 +6,7 @@
   "containerApp": "ca",
   "containerAppsEnvironment": "cae",
   "containerRegistry": "cr",
+  "documentIntelligence": "di",
   "keyVault": "kv",
   "linuxVirtualMachine": "vm-lin",
   "logAnalytics": "law",

@@ -1,7 +1,7 @@
 {
   "name": "ai-foundry",
-  "displayName": "Ai Foundry",
-  "description": "Microsoft Foundry (AIServices) account with local auth disabled, a Foundry project and serialized model deployments.",
+  "displayName": "Microsoft Foundry",
+  "description": "Entra-only Foundry account/project with default-deny IP access, scoped operator roles, metrics and pinned model deployments.",
   "kind": "resource",
   "abbreviation": "aif",
   "featureFlag": "aiFoundry",
@@ -11,7 +11,9 @@
     "private"
   ],
   "providers": [
-    "Microsoft.CognitiveServices"
+    "Microsoft.CognitiveServices",
+    "Microsoft.Insights",
+    "Microsoft.Authorization"
   ],
   "privateEndpoints": [],
   "roles": [
@@ -27,7 +29,7 @@
   "nameRule": "global",
   "preflight": {
     "checks": [],
-    "requiresOperatorPrincipals": false
+    "requiresOperatorPrincipals": true
   },
   "additionalAbbreviations": [
     "proj"
