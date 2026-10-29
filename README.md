@@ -1,24 +1,6 @@
-# __PROJECT_NAME__
+# foundry-handwritten-docs
 
-__DESCRIPTION__
-
-<!-- template:start -->
-> [!IMPORTANT]
-> **This is embergershared/azd-private-starter-template**, a starting point for Azure
-> projects. The Azure Developer CLI (`azd`) deploys subscription-scope modular Bicep with
-> deterministic naming, an approved region catalog, lifecycle tags and fail-closed preflight
-> checks. Start with `core` (a resource group and monitoring), add resources from the module
-> catalog, and step up to `private` or `full` when the project needs a network.
->
-> Create a repository with **Use this template**, clone it, then run once (PowerShell, in its
-> folder):
-> ```powershell
-> ./scripts/Initialize-Repo.ps1 -Description '<one line about the project>' -Stacks dotnet,python
-> ```
-> It names the project, removes the stacks you don't use, sets the repository up and opens
-> the first PR; see [docs/template.md](docs/template.md). Then record your tenants in the
-> local files it created and follow [docs/getting-started.md](docs/getting-started.md).
-<!-- template:end -->
+Project to assess capability of Foundry to ingest mixed documents with printed and hand-written notes and append the handwritten content in the document.
 
 > [!NOTE]
 > This is a personal project, shared as is to help others. It is not an official Microsoft
