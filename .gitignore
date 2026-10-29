@@ -35,6 +35,11 @@ docs/targets.md
 *.sqlite3
 backups/
 artifacts/
+# Private continuation bundles can include deployment identifiers and raw evidence.
+/ghcpapp-plan/
+local-data/
+dist/
+build/
 
 # ---- .NET ----
 bin/
