@@ -7,7 +7,7 @@ Microsoft Foundry (AIServices) account with local auth disabled, a Foundry proje
 | Kind | `resource` |
 | Profiles | `core`, `private`, `full` |
 | Abbreviation | `aif`, `proj` |
-| Providers | `Microsoft.CognitiveServices` |
+| Providers | `Microsoft.CognitiveServices`, `Microsoft.Insights`, `Microsoft.Authorization` |
 | Private endpoints | – |
 | Feature flag | `aiFoundry` |
 | Name rule | `global` for the account (custom subdomain, 64-character budget); `regional` with `proj` for the project |
@@ -29,6 +29,18 @@ Grant workloads `Cognitive Services OpenAI User` on the account for chat and Rea
 | `projectDisplayName` | string | no |  |
 | `deployments` | array | no | `[{ name, model, version, sku?, capacity }]`; `sku` defaults to `GlobalStandard` |
 | `publicNetworkAccess` | string | no | Default `Enabled` |
+| `allowedClientIpv4` | string | no | One explicitly approved workstation IPv4; empty denies all clients |
+| `operatorPrincipalIds` | array | no | Account OpenAI User and project-scoped Azure AI User |
+| `enableRoleAssignments` | bool | no | Default true |
+| `logAnalyticsWorkspaceId` | string | no | Enables `AllMetrics` only, never request/response logging |
+
+Network ACLs always default to Deny, without trusted-service bypasses. Public network
+access alone does not grant connectivity. The root composition defaults AI services
+off and public access Disabled. It explicitly uses regional Standard for handwriting;
+the reusable module's historical GlobalStandard SKU default is unchanged.
+
+See [the handwriting deployment guide](../../../docs/handwriting-azure.md) for the
+approved exception and local-only environment configuration.
 
 ## Outputs
 

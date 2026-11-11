@@ -4,8 +4,8 @@
   "modules": [
     {
       "name": "ai-foundry",
-      "displayName": "Ai Foundry",
-      "description": "Microsoft Foundry (AIServices) account with local auth disabled, a Foundry project and serialized model deployments.",
+      "displayName": "Microsoft Foundry",
+      "description": "Entra-only Foundry account/project with default-deny IP access, scoped operator roles, metrics and pinned model deployments.",
       "kind": "resource",
       "abbreviation": "aif",
       "additionalAbbreviations": [
@@ -18,7 +18,9 @@
         "private"
       ],
       "providers": [
-        "Microsoft.CognitiveServices"
+        "Microsoft.Authorization",
+        "Microsoft.CognitiveServices",
+        "Microsoft.Insights"
       ],
       "nameRule": "global",
       "path": "infra/modules/ai-foundry/main.bicep",
@@ -35,7 +37,7 @@
       ],
       "preflight": {
         "checks": [],
-        "requiresOperatorPrincipals": false
+        "requiresOperatorPrincipals": true
       }
     },
     {
@@ -115,6 +117,38 @@
       "preflight": {
         "checks": [],
         "requiresOperatorPrincipals": false
+      }
+    },
+    {
+      "name": "document-intelligence",
+      "displayName": "Document Intelligence",
+      "description": "Single-service S0 FormRecognizer account with Entra authentication, default-deny workstation IP access, scoped users and metrics-only diagnostics.",
+      "kind": "resource",
+      "abbreviation": "di",
+      "additionalAbbreviations": [],
+      "featureFlag": "documentIntelligence",
+      "profiles": [
+        "core",
+        "full",
+        "private"
+      ],
+      "providers": [
+        "Microsoft.Authorization",
+        "Microsoft.CognitiveServices",
+        "Microsoft.Insights"
+      ],
+      "nameRule": "global",
+      "path": "infra/modules/document-intelligence/main.bicep",
+      "privateEndpoints": [],
+      "roles": [
+        {
+          "name": "Cognitive Services User",
+          "id": "a97b65f3-24c7-4388-baec-2e87135dc908"
+        }
+      ],
+      "preflight": {
+        "checks": [],
+        "requiresOperatorPrincipals": true
       }
     },
     {

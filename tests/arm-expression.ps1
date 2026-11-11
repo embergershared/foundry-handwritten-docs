@@ -396,6 +396,8 @@ function Invoke-ArmCall {
             return $false
         }
         'bool' { return ConvertTo-ArmBoolean $values[0] }
+        'false' { return $false }
+        'true' { return $true }
         'createObject' {
             $object = @{}
             for ($i = 0; ($i + 1) -lt $values.Count; $i += 2) {

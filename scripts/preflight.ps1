@@ -12,6 +12,7 @@ $ErrorActionPreference = 'Stop'
 
 . (Join-Path $PSScriptRoot 'naming.ps1')
 . (Join-Path $PSScriptRoot 'module-selection.ps1')
+. (Join-Path $PSScriptRoot 'handwriting-settings.ps1')
 
 function Invoke-AzJson {
     param(
@@ -21,7 +22,7 @@ function Invoke-AzJson {
 
     $json = & az @Arguments --only-show-errors --output json
     if ($LASTEXITCODE -ne 0) {
-        throw "az $($Arguments -join ' ') failed with exit code $LASTEXITCODE."
+        throw "Azure preflight query failed with exit code $LASTEXITCODE. Inspect private CLI diagnostics."
     }
 
     return $json | ConvertFrom-Json
@@ -112,6 +113,8 @@ $featureSettings = [ordered] @{
     entraLogin        = $isFull
     shutdownSchedules = $isFull
     roleAssignments   = $true
+    aiFoundry         = $false
+    documentIntelligence = $false
 }
 
 $supportedFeatures = @($featureSettings.Keys)
@@ -208,7 +211,7 @@ if ($account.state -ne 'Enabled') {
 }
 $null = Assert-SubscriptionCode -SubscriptionName $account.name `
     -CachedCode $cachedSubscriptionCode -SubscriptionId $subscriptionId
-Write-Output "Target subscription: '$($account.name)' ($subscriptionId) in tenant $($account.tenantId)."
+Write-Output 'Target subscription is enabled; tenant and subscription naming were verified.'
 
 $locations = @(Invoke-AzJson -Arguments @('account', 'list-locations', '--query', "[?name=='$location'].name"))
 if ($locations.Count -eq 0) {
@@ -302,7 +305,7 @@ else {
 })
 
 if ($requiresOperatorPrincipals -and $operatorPrincipalIds.Count -eq 0) {
-    throw 'At least one Entra operator principal ID is required when a jumpbox is deployed with role assignments enabled. Set AZURE_OPERATOR_PRINCIPAL_IDS or disable the roleAssignments feature.'
+    throw 'An enabled module requires AZURE_OPERATOR_PRINCIPAL_IDS for scoped Entra role assignments.'
 }
 
 $seenPrincipalIds = [System.Collections.Generic.HashSet[Guid]]::new()
@@ -313,11 +316,44 @@ foreach ($principalId in $operatorPrincipalIds) {
         -not [Guid]::TryParseExact($principalId, 'D', [ref] $parsedPrincipalId) -or
         $parsedPrincipalId -eq [Guid]::Empty
     ) {
-        throw "Invalid Entra operator principal ID '$principalId'."
+        throw 'An Entra operator principal ID is not a non-empty canonical GUID.'
     }
     if (-not $seenPrincipalIds.Add($parsedPrincipalId)) {
-        throw "Duplicate Entra operator principal ID '$principalId'."
+        throw 'Duplicate Entra operator principal ID.'
     }
+}
+
+if ($featureSettings.aiFoundry -or $featureSettings.documentIntelligence) {
+    $aiSettings = Get-HandwritingDeploymentSettings -ReadValue {
+        param($name)
+        $value = & azd env get-value $name 2>$null
+        if ($LASTEXITCODE -eq 0) { $value }
+    }
+    Assert-HandwritingDeploymentSettings -Settings $aiSettings -AssignRoles $featureSettings.roleAssignments `
+        -OperatorCount $operatorPrincipalIds.Count
+    if ($featureSettings.aiFoundry) {
+        $models = @(Invoke-AzJson -Arguments @(
+            'cognitiveservices', 'model', 'list', '--subscription', $subscriptionId, '--location', $location
+        ))
+        $usage = @(Invoke-AzJson -Arguments @(
+            'cognitiveservices', 'usage', 'list', '--subscription', $subscriptionId, '--location', $location
+        ))
+        Assert-HandwritingModelQuota -Settings $aiSettings -Models $models -Usage $usage
+    }
+    if ($featureSettings.documentIntelligence) {
+        $serviceSkus = @(Invoke-AzJson -Arguments @(
+            'cognitiveservices', 'account', 'list-skus', '--subscription', $subscriptionId,
+            '--kind', 'FormRecognizer', '--location', $location
+        ))
+        $available = @($serviceSkus | Where-Object {
+            $_.kind -eq 'FormRecognizer' -and $_.name -eq 'S0' -and
+            $_.locations -contains $location -and @($_.restrictions).Count -eq 0
+        })
+        if ($available.Count -ne 1) {
+            throw 'Document Intelligence S0 is unavailable or restricted in the selected region.'
+        }
+    }
+    Write-Output 'AI access, explicit operators and regional model/quota gates passed; keys and network bypasses remain disabled.'
 }
 
 # ---------------------------------------------------------------------------
@@ -392,6 +428,6 @@ if ($requestedChecks.Contains('vcpuQuota')) {
 }
 
 $moduleList = ($enabledModules | ForEach-Object { $_['name'] }) -join ', '
-Write-Output "Preflight passed for environment '$environmentName' using profile '$deploymentProfile' in '$location' ($locationCode), tenant code '$tenantCode' and subscription code '$cachedSubscriptionCode'."
+Write-Output "Preflight passed for the selected environment using profile '$deploymentProfile' in '$location'."
 Write-Output "Modules: $moduleList"
 Write-Output "Providers verified: $($providers -join ', ')"

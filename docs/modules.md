@@ -97,10 +97,11 @@ a module has been provisioned anywhere, changing them replaces resources.
 <!-- BEGIN GENERATED: module-table -->
 | Module | Kind | Abbreviation | Profiles | Feature flag | Providers |
 |---|---|---|---|---|---|
-| [`ai-foundry`](../infra/modules/ai-foundry/README.md) | resource | `aif`, `proj` | `core`, `full`, `private` | `aiFoundry` | `Microsoft.CognitiveServices` |
+| [`ai-foundry`](../infra/modules/ai-foundry/README.md) | resource | `aif`, `proj` | `core`, `full`, `private` | `aiFoundry` | `Microsoft.Authorization`, `Microsoft.CognitiveServices`, `Microsoft.Insights` |
 | [`bastion`](../infra/modules/bastion/README.md) | resource | `bast` | `full` | `bastion` | `Microsoft.Network` |
 | [`container-apps-environment`](../infra/modules/container-apps-environment/README.md) | resource | `cae` | `core`, `full`, `private` | `containerAppsEnvironment` | `Microsoft.App`, `Microsoft.OperationalInsights` |
 | [`container-registry`](../infra/modules/container-registry/README.md) | resource | `cr` | `core`, `full`, `private` | `containerRegistry` | `Microsoft.ContainerRegistry` |
+| [`document-intelligence`](../infra/modules/document-intelligence/README.md) | resource | `di` | `core`, `full`, `private` | `documentIntelligence` | `Microsoft.Authorization`, `Microsoft.CognitiveServices`, `Microsoft.Insights` |
 | [`jumpboxes`](../infra/modules/jumpboxes/README.md) | composite | `vm-win`, `vm-lin`, `nic` | `full` | `windowsVm` | `Microsoft.Compute`, `Microsoft.DevTestLab`, `Microsoft.Network` |
 | [`key-vault`](../infra/modules/key-vault/README.md) | resource | `kv` | `core`, `full`, `private` | `keyVault` | `Microsoft.KeyVault` |
 | [`managed-identity`](../infra/modules/managed-identity/README.md) | resource | `id` | `core`, `full`, `private` | `managedIdentity` | `Microsoft.ManagedIdentity` |

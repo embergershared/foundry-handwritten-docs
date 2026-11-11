@@ -94,11 +94,28 @@ param enableRoleAssignments bool = true
 @description('Turn on Key Vault purge protection. Off only for throwaway environments, such as pull request deployments, whose vault must be purged on teardown. It cannot be turned off on a vault that already has it.')
 param enableKeyVaultPurgeProtection bool = true
 
-@description('Base64-encoded JSON object overriding profile feature flags. Supported keys: network, keyVault, storage, bastion, windowsVm, linuxVm, natGateway, entraLogin, shutdownSchedules, roleAssignments. natGateway and entraLogin must match.')
+@description('Base64-encoded JSON object overriding profile feature flags. Supported keys: network, keyVault, storage, bastion, windowsVm, linuxVm, natGateway, entraLogin, shutdownSchedules, roleAssignments, aiFoundry, documentIntelligence. AI services default off. natGateway and entraLogin must match.')
 param featureOverridesBase64 string = 'e30='
 
 @description('Comma-separated Entra user or group object IDs that receive VM login and private data-plane roles.')
 param operatorPrincipalIdsCsv string = ''
+
+@description('Explicitly approved AI public access. Private endpoints are not composed for AI services.')
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param aiPublicNetworkAccess string = 'Disabled'
+
+@description('Single approved workstation IPv4; blank keeps the default-deny firewall closed.')
+@maxLength(15)
+param aiAllowedClientIpv4 string = ''
+
+param visionDeploymentName string = 'handwriting-vision'
+param visionModel string = 'gpt-4.1'
+param visionModelVersion string = '2025-04-14'
+@minValue(1)
+param visionCapacity int = 10
 
 @description('VNet address space. Default subnet parameters are derived from this /22.')
 param vnetAddressPrefix string = '10.42.0.0/22'
@@ -361,6 +378,8 @@ var tags = commonTags(
 // so the ladder sets the baseline and the caller keeps the final say.
 var featureSettings = union(
   {
+    aiFoundry: false
+    documentIntelligence: false
     network: enableNetwork ?? isPrivateOrHigher
     keyVault: enableKeyVault ?? isPrivateOrHigher
     storage: enableStorage ?? isPrivateOrHigher
@@ -381,6 +400,8 @@ var deployNatGateway = bool(featureSettings.natGateway)
 var deployEntraLogin = bool(featureSettings.entraLogin)
 var deployShutdownSchedules = bool(featureSettings.shutdownSchedules)
 var assignRoles = bool(featureSettings.roleAssignments)
+var deployAiFoundry = bool(featureSettings.aiFoundry)
+var deployDocumentIntelligence = bool(featureSettings.documentIntelligence)
 var deployAnyVm = deployWindowsVm || deployLinuxVm
 
 // scripts/preflight.ps1 rejects inconsistent combinations with an actionable
@@ -411,6 +432,62 @@ module monitoring './modules/monitoring/main.bicep' = {
     applicationInsightsName: appInsightsName
     retentionInDays: logRetentionInDays
     dailyCapGb: logDailyCapGb
+  }
+}
+
+module aiFoundry './modules/ai-foundry/main.bicep' = if (deployAiFoundry) {
+  name: 'ai-foundry'
+  scope: resourceGroup
+  params: {
+    name: globalName(
+      abbreviations.aiFoundry,
+      locationCode,
+      subscriptionCode,
+      environmentName,
+      shortUniqueSuffix,
+      '-',
+      64
+    )
+    projectName: azName(abbreviations.aiFoundryProject, tenantCode, locationCode, subscriptionCode, environmentName, '')
+    location: location
+    tags: tags
+    publicNetworkAccess: aiPublicNetworkAccess
+    allowedClientIpv4: aiAllowedClientIpv4
+    operatorPrincipalIds: operatorPrincipalIds
+    enableRoleAssignments: assignRoles
+    logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceId
+    deployments: [
+      {
+        name: visionDeploymentName
+        model: visionModel
+        version: visionModelVersion
+        sku: 'Standard'
+        capacity: visionCapacity
+      }
+    ]
+  }
+}
+
+module documentIntelligence './modules/document-intelligence/main.bicep' = if (deployDocumentIntelligence) {
+  name: 'document-intelligence'
+  scope: resourceGroup
+  params: {
+    name: globalName(
+      abbreviations.documentIntelligence,
+      locationCode,
+      subscriptionCode,
+      environmentName,
+      shortUniqueSuffix,
+      '-',
+      64
+    )
+    location: location
+    tags: tags
+    publicNetworkAccess: aiPublicNetworkAccess
+    allowedClientIpv4: aiAllowedClientIpv4
+    operatorPrincipalIds: operatorPrincipalIds
+    enableRoleAssignments: assignRoles
+    logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceId
   }
 }
 
@@ -557,6 +634,17 @@ resource deployedKeyVault 'Microsoft.KeyVault/vaults@2024-11-01' existing = {
 
 output AZURE_RESOURCE_GROUP string = resourceGroup.name
 output AZURE_DEPLOYMENT_PROFILE string = deploymentProfile
+output AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT string = deployDocumentIntelligence
+  ? documentIntelligence!.outputs.endpoint
+  : ''
+output AZURE_OPENAI_ENDPOINT string = deployAiFoundry ? aiFoundry!.outputs.openAiEndpoint : ''
+output AZURE_AI_PROJECT_ENDPOINT string = deployAiFoundry ? aiFoundry!.outputs.projectEndpoint : ''
+output AZURE_AI_FOUNDRY_NAME string = deployAiFoundry ? aiFoundry!.outputs.name : ''
+output AZURE_AI_PROJECT_NAME string = deployAiFoundry ? aiFoundry!.outputs.projectName : ''
+output AZURE_DOCUMENT_INTELLIGENCE_NAME string = deployDocumentIntelligence ? documentIntelligence!.outputs.name : ''
+output AZURE_VISION_DEPLOYMENT string = deployAiFoundry ? visionDeploymentName : ''
+output AZURE_VISION_MODEL string = deployAiFoundry ? visionModel : ''
+output AZURE_VISION_MODEL_VERSION string = deployAiFoundry ? visionModelVersion : ''
 output AZURE_VIRTUAL_NETWORK_NAME string = deployNetwork ? network!.outputs.virtualNetworkName : ''
 output AZURE_KEY_VAULT_NAME string = deployKeyVault ? keyVault!.outputs.name : ''
 output AZURE_STORAGE_ACCOUNT_NAME string = deployStorage ? storage!.outputs.name : ''

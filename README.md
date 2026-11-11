@@ -54,6 +54,7 @@ Then open `artifacts\synthetic-run\report.html`. Review and export are in
 | Page | What it covers |
 |---|---|
 | [docs/handwriting-poc.md](docs/handwriting-poc.md) | **Local PoC:** offline CLI, synthetic demonstration, evidence/review formats, safety gates and cloud authorization prerequisites |
+| [docs/handwriting-azure.md](docs/handwriting-azure.md) | Minimal opt-in azd/Bicep recognition resources, one environment RG, Entra roles and workstation-only public access |
 | [docs/getting-started.md](docs/getting-started.md) | **Start here** for the infrastructure: local tenant files, a first environment and preview, profiles, adding resources, tests |
 | [docs/architecture.md](docs/architecture.md) | The conventions layer, profiles, network, naming contract, extension points |
 | [docs/configuration.md](docs/configuration.md) | Profiles, environment values, preflight, expert overrides, resource naming |

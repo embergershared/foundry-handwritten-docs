@@ -74,6 +74,7 @@ $payload = @(
     'scripts/naming.ps1'
     'scripts/preflight.ps1'
     'scripts/module-selection.ps1'
+    'scripts/handwriting-settings.ps1'
     'scripts/set-deployment-tags.ps1'
     'scripts/build-catalog.ps1'
     'scripts/build-docs.ps1'

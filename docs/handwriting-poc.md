@@ -171,10 +171,15 @@ and no automatic POST retries (`retry_total=0`); configure OpenAI SDK retries ex
 (`max_retries=0`) and the target's pinned API version. Clients remain caller-owned and
 must be closed by the caller. The offline CLI never constructs these clients or credentials.
 
-Use existing authorized resources first, least-privilege DI/OpenAI data-plane roles,
-and approved private connectivity/DNS. The existing Foundry catalog module is not
-wired into main and is not proof of private access; do not enable public access as a
-workaround. New IaC, provisioning and any network exception need separate approval.
+Use existing authorized resources first and least-privilege DI/OpenAI data-plane roles.
+The opt-in azd composition in [handwriting-azure.md](handwriting-azure.md) prepares
+Foundry with a pinned vision deployment and Document Intelligence. It has no AI private
+endpoints: access relies on one approved workstation IPv4 with default Deny, which is
+not proof of private access. Provisioning those resources does not authorize a live run.
+Never widen the firewall or enable trusted-service bypass as a workaround; data-plane
+access to the provisioned environment is not yet established (see
+[the deployment plan](../.azure/deployment-plan.md)). Other IaC, provisioning and any
+further network exception need separate approval.
 
 DI stores private operation continuation checkpoints. A lost submission response is
 marked ambiguous and is **not** silently submitted/billed twice. Reconcile such an
