@@ -1,6 +1,6 @@
 # foundry-handwritten-docs
 
-Project to assess capability of Foundry to ingest mixed documents with printed and hand-written notes and append the handwritten content in the document.
+Local proof of concept for extracting handwriting with Document Intelligence and Foundry, reviewing literal transcriptions, and safely replacing eligible ink with typed text.
 
 > [!NOTE]
 > This is a personal project, shared as is to help others. It is not an official Microsoft
@@ -12,11 +12,37 @@ Project to assess capability of Foundry to ingest mixed documents with printed a
 <!-- Keep this section: a few lines on what the project does and for whom. The details go in
      docs/architecture.md. -->
 
+Scanned forms and engineering sheets often mix printed text with handwriting. This project
+tests how Azure Document Intelligence and a vision model in Microsoft Foundry read that
+handwriting, and replaces it with typed text only where that is provably safe:
+
+- **Local CLI** (`src/handwritten_docs/`): `inspect`, `analyze`, `review-report` and `export`
+  stages. It works offline on recorded recognition evidence, binds every approval to the exact
+  source and proposal, keeps signatures, drawings and overlapping ink unchanged, and writes a
+  separate derived PDF. See [docs/handwriting-poc.md](docs/handwriting-poc.md).
+- **No real documents in git:** only synthetic fixtures; real files and outputs stay in the
+  ignored `local-data/` and `artifacts/` folders. Live Azure processing is separately gated.
+
 ## Quick start
 
 <!-- Keep this section: the few commands that take a new user from a clone to a first
      preview or deployment, each with where it runs. The full walkthrough stays in
      docs/getting-started.md. -->
+
+Run the synthetic demonstration (**PowerShell, workstation**, repository root):
+
+```powershell
+py -3.13 -m venv .venv
+$env:PIP_INDEX_URL = 'https://packagefeedproxy.microsoft.io/pypi/simple/'
+.venv\Scripts\python -m pip install --require-hashes -r requirements-dev.lock
+.venv\Scripts\python -m pip install --no-deps --no-build-isolation -e .
+.venv\Scripts\python -m handwritten_docs.demo --output artifacts\synthetic-input
+.venv\Scripts\python -m handwritten_docs analyze artifacts\synthetic-input\synthetic.pdf --pages 1 --evidence artifacts\synthetic-input\evidence.json --output artifacts\synthetic-run
+.venv\Scripts\python -m handwritten_docs review-report artifacts\synthetic-input\synthetic.pdf --analysis artifacts\synthetic-run\analysis.json --output artifacts\synthetic-run
+```
+
+Then open `artifacts\synthetic-run\report.html`. Review and export are in
+[docs/handwriting-poc.md](docs/handwriting-poc.md).
 
 ## Contents
 
@@ -27,7 +53,8 @@ Project to assess capability of Foundry to ingest mixed documents with printed a
 
 | Page | What it covers |
 |---|---|
-| [docs/getting-started.md](docs/getting-started.md) | **Start here:** local tenant files, a first environment and preview, profiles, adding resources, tests |
+| [docs/handwriting-poc.md](docs/handwriting-poc.md) | **Local PoC:** offline CLI, synthetic demonstration, evidence/review formats, safety gates and cloud authorization prerequisites |
+| [docs/getting-started.md](docs/getting-started.md) | **Start here** for the infrastructure: local tenant files, a first environment and preview, profiles, adding resources, tests |
 | [docs/architecture.md](docs/architecture.md) | The conventions layer, profiles, network, naming contract, extension points |
 | [docs/configuration.md](docs/configuration.md) | Profiles, environment values, preflight, expert overrides, resource naming |
 | [docs/deployment.md](docs/deployment.md) | Prerequisites and roles, prepare → validate → deploy, Bastion access, cost and teardown |
@@ -35,7 +62,7 @@ Project to assess capability of Foundry to ingest mixed documents with printed a
 | [docs/security.md](docs/security.md) | Public exceptions, private DNS, monitoring access, break glass |
 | [docs/ci-cd.md](docs/ci-cd.md) | CI, PR rules, public logs and the repository settings |
 | [docs/ci-deployment.md](docs/ci-deployment.md) | Pull request deployments into throwaway environments |
-| [docs/supply-chain.md](docs/supply-chain.md) | Package feeds, lock files and the 7-day age gate |
+| [docs/supply-chain.md](docs/supply-chain.md) | Approved feeds, hash locks and the stricter 8-day Python package gate |
 | [docs/database.md](docs/database.md) | Database changes: migration, backup, way back |
 | [docs/SUPPORT.md](docs/SUPPORT.md) | Questions, bugs, and what support to expect |
 | [docs/CHANGELOG.md](docs/CHANGELOG.md) | Changes |
