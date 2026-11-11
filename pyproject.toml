@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=75,<81"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "handwritten-docs"
+version = "0.1.0"
+description = "Conservative local handwriting transcription and PDF replacement proof of concept"
+requires-python = ">=3.13"
+dynamic = ["dependencies"]
+
+[project.scripts]
+handwritten-docs = "handwritten_docs.cli:main"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.in"]}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests/python"]

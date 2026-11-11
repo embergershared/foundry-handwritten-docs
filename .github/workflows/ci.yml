@@ -202,8 +202,8 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Every locked package is at least 7 days old
-        run: python scripts/check_package_age.py --min-age-days 7
+      - name: Every locked package is at least 8 days old
+        run: python scripts/check_package_age.py --min-age-days 8
 
   dotnet:
     name: .NET build and test
@@ -258,6 +258,7 @@ jobs:
     timeout-minutes: 20
     env:
       LOCK: ${{ needs.detect.outputs.python-lock }}
+      PIP_INDEX_URL: https://packagefeedproxy.microsoft.io/pypi/simple/
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
